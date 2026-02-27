@@ -2,55 +2,22 @@ const express = require("express");
 
 const app = express();
 
-// app.use("/contact", (req, res) => {
-//     res.send("Yet to add...")
-// });
+const { adminAuth, userAuth } = require("./middleWare/auth")
 
-// app.use("/test", (req, res) => {
-//     res.send("testing...")
-// });
+app.use("/user/Admin", adminAuth);
 
-// app.use("/", (req, res) => {
-//     res.send("Namaste developers...")
-// });
+app.get("/user/Admin/getUserData", (req, res) => {
+    res.send("Access given to admin")
+});
 
-// app.get("/user/:UserId", (req, res) => {
-//     console.log(req.params)
-//     res.send({
-//         firstname: "vijay",
-//         lastname: "durgasi"
-//     })
-// });
+app.get("/user", userAuth, (req, res) => {
+    res.send("user is verified")
+});
 
-// app.post("/user", (req, res) => {
-//     res.send("Data has sucessfully posted")
-// });
+app.get("/user/Admin/deleteUserData", (req, res) => {
+    res.send("data is deleted")
+});
 
-// app.delete("/user", (req, res) => {
-//     res.send("Data has sucessfully deleted")
-// });
-
-app.get("/user", (req, res, next) => {
-    // res.send("Response-1")
-    console.log("Response-1")
-    next();
-},
-    (req, res, next) => {
-        // res.send("Response - 2")
-        console.log("Response-2")
-        next();
-    },
-    (req, res, next) => {
-        // res.send("Response - 3")
-        console.log("Response-3")
-        next();
-    },
-    (req, res, next) => {
-        res.send("Respponse - 4")
-        console.log("Response-4")
-        // next();
-    },
-)
 
 app.listen(9000, () => [
     console.log("server is running in 9000...")
