@@ -46,7 +46,7 @@ app.get("/feed", async (req, res) => {
 })
 
 //Delete API 
-app.delete("/user", async (req, res) => {
+app.delete("/deleteUser", async (req, res) => {
     const userId = req.body.userId;
     try {
         const user = await User.findByIdAndDelete(userId);
@@ -57,7 +57,7 @@ app.delete("/user", async (req, res) => {
 })
 
 //Update the user data 
-app.patch("/user", async (req, res) => {
+app.patch("/updateUser", async (req, res) => {
     const data = req.body;
     try {
         const userId = data.userId;
