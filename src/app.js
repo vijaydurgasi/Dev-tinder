@@ -19,7 +19,7 @@ app.post("/signUp", async (req, res) => {
         res.send("User added successfully")
     } catch (err) {
         // console.log(err);
-        res.status(400).send("Error : "+err.message);
+        res.status(400).send("Error : " + err.message);
     }
 
 });
@@ -95,5 +95,4 @@ connectDB().then(() => {
 }).catch(err => {
     console.log(err, "cannot connect to Data base")
 });
-
 
