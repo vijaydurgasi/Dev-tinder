@@ -3,19 +3,23 @@ const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
+const { validateSignUpData } = require("./utils/validation")
 app.use(express.json());
 
 //writing the data into Data base
 app.post("/signUp", async (req, res) => {
 
     // console.log(req.body);
-
-    const user = new User(req.body);
     try {
+        validateSignUpData(req)
+
+        const user = new User(req.body);
+
         await user.save();
         res.send("User added successfully")
     } catch (err) {
-        res.status(400).send("Got an error while saving the user " + err.message)
+        // console.log(err);
+        res.status(400).send("Error : "+err.message);
     }
 
 });
@@ -30,8 +34,8 @@ app.get("/user", async (req, res) => {
         } else {
             res.send(user)
         }
-    } catch {
-        res.status(400).send("something went wrong")
+    } catch (err) {
+        res.status(400).send("Error : " + err.message)
     }
 });
 
