@@ -4,6 +4,7 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
 const { validateSignUpData } = require("./utils/validation")
+const bcrypt = require("bcrypt");
 app.use(express.json());
 
 //writing the data into Data base
@@ -13,7 +14,14 @@ app.post("/signUp", async (req, res) => {
     try {
         validateSignUpData(req)
 
-        const user = new User(req.body);
+        const { firstName, lastName, emailId, password } = req.body;
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        // console.log(passwordHash)
+
+        const user = new User({
+            firstName, lastName, emailId, password: passwordHash
+        });
 
         await user.save();
         res.send("User added successfully")
@@ -22,6 +30,27 @@ app.post("/signUp", async (req, res) => {
         res.status(400).send("Error : " + err.message);
     }
 
+});
+
+//Login validation
+app.post("/Login", async (req, res) => {
+    try {
+        const { emailId, password } = req.body
+
+        const user = await User.findOne({ emailId: emailId });
+        if (!user) {
+            throw new Error("Invalid");
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (isPasswordValid) {
+            res.send("Login successful...");
+        } else {
+            throw new Error("Invalid!");
+        }
+
+    } catch (err) {
+        res.status(400).send("Error: " + err.message)
+    }
 });
 
 //Get the user data from the data base
@@ -95,4 +124,3 @@ connectDB().then(() => {
 }).catch(err => {
     console.log(err, "cannot connect to Data base")
 });
-
