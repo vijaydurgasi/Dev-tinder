@@ -7,6 +7,7 @@ const { validateSignUpData } = require("./utils/validation")
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middleWare/auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -45,15 +46,11 @@ app.post("/Login", async (req, res) => {
         if (!user) {
             throw new Error("Invalid");
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validatePassword(password);
 
         if (isPasswordValid) {
 
-            //create JWT token
-            const token = await jwt.sign({ _id: user._id }, "Dev@tinder0099")
-            // console.log(token);
-
-            //cookie
+            const token = await user.getJWT();
             res.cookie("token", token);
             res.send("Login successful...");
         } else {
@@ -66,18 +63,9 @@ app.post("/Login", async (req, res) => {
 });
 
 //profile
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res, next) => {
     try {
-        const cookies = req.cookies;
-        const { token } = cookies
-        if (!token) {
-            throw new Error("Invalid token")
-        }
-        const decodedMessage = await jwt.verify(token, "Dev@tinder0099");
-        const { _id } = decodedMessage;
-        // console.log("Loged in user is: " + _id);
-
-        const user = await User.findById(_id);
+        const user = req.user;
         if (!user) {
             throw new Error("Invalid user")
         }
