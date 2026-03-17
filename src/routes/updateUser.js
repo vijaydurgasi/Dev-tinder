@@ -1,9 +1,10 @@
 const express = require("express");
 const User = require("../models/user");
+const { userAuth } = require("../middleWare/auth");
 
 const updateUser = express.Router();
 //Update the user data 
-updateUser.patch("/updateUser/:userId", async (req, res) => {
+updateUser.patch("/updateUser/:userId",userAuth, async (req, res) => {
     const data = req.body;
     const userId = req.params?.userId;
     try {
@@ -16,6 +17,7 @@ updateUser.patch("/updateUser/:userId", async (req, res) => {
             "age",
         ];
         const isUpadteAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
+        
         if (!isUpadteAllowed) {
             throw new Error("update not allowwed");
         }

@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const { userAuth } = require("../middleWare/auth");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        require: true,
+        required: true,
         minlength: 3,
         maxlength: 10
     },
@@ -18,9 +17,9 @@ const userSchema = new mongoose.Schema({
     },
     emailId: {
         type: String,
-        require: true,
+        required: true,
         unique: true,
-        lowerCase: true,
+        lowercase: true,
         trim: true,
         validate(value) {
             if (!validator.isEmail(value)) {
@@ -54,9 +53,9 @@ const userSchema = new mongoose.Schema({
         validate: {
             validator: function (value) {
                 const wordCount = value.trim().split(/\s+/).length;
-                return wordCount <= 5;
+                return wordCount <= 15;
             },
-            message: "About section can have maximum 5 words"
+            message: "About section can have maximum 15 words"
         }
     },
     skills: {

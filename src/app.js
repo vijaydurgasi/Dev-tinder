@@ -14,6 +14,15 @@ const deleteUser = require("./routes/deleteUser");
 const getUser = require("./routes/getUser");
 const updateUser = require("./routes/updateUser");
 const profile = require("./routes/profile");
+const profileRouter = require("./routes/profile");
+const requestRoute = require("./routes/request");
+
+app.use("/", authRouter);
+app.use("/", deleteUser);
+app.use("/", getUser);
+app.use("/", profileRouter);
+app.use("/", updateUser);
+app.use("/", requestRoute);
 
 connectDB().then(() => {
     console.log("🚀 connection is successfull to data base")
