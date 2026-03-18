@@ -6,6 +6,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 
 const requestRoute = express.Router();
 
+//sending connection Request [sender to receiver]
 requestRoute.post("/request/send/:status/:toUserid",
     userAuth,
     async (req, res) => {
@@ -51,5 +52,42 @@ requestRoute.post("/request/send/:status/:toUserid",
         }
     }
 );
+
+// verifying the connection request [receiver response]
+requestRoute.post("/request/review/:status/:requestId",
+    userAuth,
+    async (req, res) => {
+        try {
+
+            const loggedInUser = req.user
+            const { status, requestId } = req.params;
+
+            const allowedStatus = ["accepted", "rejected"];
+            if (!allowedStatus.includes(status)) {
+                throw new Error("status not allowed");
+            }
+
+            const connectionRequest = await ConnectionRequest.findOne({
+                _id: requestId,
+                toUserId: loggedInUser._id,
+                status: "interested",
+            });
+            // console.log("LoggedInUser:", loggedInUser._id.toString());
+            // console.log("toUserId:", connectionRequest?.toUserId?.toString());
+            if (!connectionRequest) {
+                throw new Error("connection request is not found")
+            };
+
+            connectionRequest.status = status;
+
+            const data = await connectionRequest.save();
+
+            res.json({ message: "connection request " + status, data });
+
+        } catch (err) {
+            res.status(400).send("Error: " + err.message)
+        }
+    }
+)
 
 module.exports = requestRoute;
