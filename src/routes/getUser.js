@@ -19,7 +19,7 @@ userDetails.get("/user", async (req, res) => {
 });
 
 //Get all the user data from the data base
-userDetails.get("/feed", async (req, res) => {
+userDetails.get("/user/feed", async (req, res) => {
     try {
         const users = await User.find({})
         res.send(users)

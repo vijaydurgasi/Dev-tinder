@@ -1,6 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middleWare/auth");
 const ConnectionRequest = require("../models/connectionRequest");
+const User = require("../models/user");
 
 const userRouter = express.Router();
 
@@ -54,5 +55,40 @@ userRouter.get("/user/connections",
     }
 );
 
+
+//Feed API  for showing profiles
+userRouter.get("/feed",
+    userAuth,
+    async (req, res) => {
+        try {
+
+            const loggedInUser = req.user;
+
+            const connectionRequests = await ConnectionRequest.find({
+                $or: [
+                    { fromUserId: loggedInUser._id },
+                    { toUserId: loggedInUser._id }
+                ],
+            }).select("fromUserId toUserId");
+
+            const hideUserFromFeed = new Set();
+            connectionRequests.forEach((req) => {
+                hideUserFromFeed.add(req.fromUserId.toString());
+                hideUserFromFeed.add(req.toUserId.toString());
+            });
+
+            const users = await User.find({
+                $and: [
+                    { _id: { $nin: Array.from(hideUserFromFeed) } },// finding the users which are nin[not in] the array 
+                    { _id: { $ne: loggedInUser._id } },// find the user who is not a logged in user
+                ],
+            }).select(USER_DATA);
+            res.send(users);
+
+        } catch (err) {
+            res.status(400).send("Error: " + err.message);
+        }
+    }
+)
 
 module.exports = userRouter;
