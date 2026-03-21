@@ -25,6 +25,12 @@ authRoute.post("/signUp", async (req, res) => {
         res.send("User added successfully")
     } catch (err) {
         // console.log(err);
+        if (err.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: "User already exists with this email"
+            });
+        }
         res.status(400).send("Error : " + err.message);
     }
 

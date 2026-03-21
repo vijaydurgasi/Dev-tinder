@@ -61,8 +61,12 @@ userRouter.get("/feed",
     userAuth,
     async (req, res) => {
         try {
-
             const loggedInUser = req.user;
+
+            const page = parseInt(req.query.page) || 1;
+            const limit = 2;
+
+            const skip = (page - 1) * limit;
 
             const connectionRequests = await ConnectionRequest.find({
                 $or: [
@@ -79,16 +83,23 @@ userRouter.get("/feed",
 
             const users = await User.find({
                 $and: [
-                    { _id: { $nin: Array.from(hideUserFromFeed) } },// finding the users which are nin[not in] the array 
-                    { _id: { $ne: loggedInUser._id } },// find the user who is not a logged in user
+                    { _id: { $nin: Array.from(hideUserFromFeed) } },
+                    { _id: { $ne: loggedInUser._id } },
                 ],
-            }).select(USER_DATA);
-            res.send(users);
+            })
+                .select(USER_DATA)
+                .skip(skip)
+                .limit(limit);
+
+            res.send({
+                page,
+                users
+            });
 
         } catch (err) {
             res.status(400).send("Error: " + err.message);
         }
     }
-)
+);
 
 module.exports = userRouter;
